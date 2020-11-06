@@ -1,16 +1,29 @@
-# This is a sample Python script.
+from merklelib import MerkleTree, beautify, export
+import os
+from dirhash import dirhash
+from checksumdir import dirhash as checksumhash
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘B to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    # find the folder to merklize
+    folder = os.environ.get('MERKLIZE_ROOT_FOLDER')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    # hash
+    dir_sha256_all = dirhash(folder, "sha256")
+    dir_sha256_js = dirhash(folder, "sha256", match=["*.js"])
+    dir_sha256_js_none = dirhash(folder, "sha256", ignore=["*.js"])
+
+    # checksums
+    checksum_sha256_all = checksumhash(folder, "sha256")
+
+    # merklize
+    tree = MerkleTree([
+        dir_sha256_all,
+        dir_sha256_js,
+        dir_sha256_js_none,
+        checksum_sha256_all
+    ])
+    beautify(tree)
+
+    # export
+    export(tree, filename='transactions', ext='jpg')
+
